@@ -6,6 +6,7 @@ import { ShoppingBag, ArrowRight } from 'lucide-react';
 
 const HomeScreen = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -17,14 +18,27 @@ const HomeScreen = () => {
 
   const searchParams = new URLSearchParams(location.search);
   const keyword = searchParams.get('keyword') || '';
+  const categoryParam = searchParams.get('category') || '';
   const pageParam = Number(searchParams.get('page')) || 1;
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await apiRequest('/categories');
+        setCategories(data);
+      } catch (err) {
+        console.error('Failed to load categories', err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       setError('');
       try {
-        const url = `/products?keyword=${encodeURIComponent(keyword)}&page=${pageParam}`;
+        const url = `/products?keyword=${encodeURIComponent(keyword)}&category=${encodeURIComponent(categoryParam)}&page=${pageParam}`;
         const data = await apiRequest(url);
         setProducts(data.products);
         setPage(data.page);
@@ -38,10 +52,10 @@ const HomeScreen = () => {
     };
 
     fetchProducts();
-  }, [keyword, pageParam]);
+  }, [keyword, categoryParam, pageParam]);
 
   const handlePageChange = (pageNum) => {
-    navigate(`/?keyword=${encodeURIComponent(keyword)}&page=${pageNum}`);
+    navigate(`/?keyword=${encodeURIComponent(keyword)}&category=${encodeURIComponent(categoryParam)}&page=${pageNum}`);
   };
 
   return (
@@ -82,9 +96,48 @@ const HomeScreen = () => {
 
       {/* Main Grid Section */}
       <div id="products-section" style={{ marginTop: '20px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '20px' }} className="text-gradient">
-          {keyword ? `Search Results for "${keyword}"` : 'Latest Collections'}
-        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 700, margin: 0 }} className="text-gradient">
+            {keyword ? `Search Results for "${keyword}"` : categoryParam ? `${categoryParam} Collection` : 'Latest Collections'}
+          </h2>
+
+          {/* Category Filter Pills */}
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => navigate('/')}
+              className={`btn ${!categoryParam ? 'btn-primary' : 'btn-secondary'}`}
+              style={{
+                padding: '8px 18px',
+                fontSize: '13px',
+                borderRadius: '9999px',
+                background: !categoryParam ? 'var(--accent-gradient)' : 'rgba(255, 255, 255, 0.03)',
+                borderColor: !categoryParam ? 'transparent' : 'var(--border-color)',
+                boxShadow: !categoryParam ? '0 0 12px var(--border-glow)' : 'none',
+                transition: 'var(--transition)',
+              }}
+            >
+              All Products
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat._id}
+                onClick={() => navigate(`/?category=${encodeURIComponent(cat.name)}`)}
+                className={`btn ${categoryParam === cat.name ? 'btn-primary' : 'btn-secondary'}`}
+                style={{
+                  padding: '8px 18px',
+                  fontSize: '13px',
+                  borderRadius: '9999px',
+                  background: categoryParam === cat.name ? 'var(--accent-gradient)' : 'rgba(255, 255, 255, 0.03)',
+                  borderColor: categoryParam === cat.name ? 'transparent' : 'var(--border-color)',
+                  boxShadow: categoryParam === cat.name ? '0 0 12px var(--border-glow)' : 'none',
+                  transition: 'var(--transition)',
+                }}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {loading ? (
           <div className="flex-center" style={{ minHeight: '30vh' }}>

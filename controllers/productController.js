@@ -21,8 +21,12 @@ const getProducts = asyncHandler(async (req, res) => {
       }
     : {};
 
-  const count = await Product.countDocuments({ ...keyword });
-  const products = await Product.find({ ...keyword })
+  // Exact category filter if provided
+  const categoryFilter = req.query.category ? { category: req.query.category } : {};
+  const query = { ...keyword, ...categoryFilter };
+
+  const count = await Product.countDocuments(query);
+  const products = await Product.find(query)
     .limit(pageSize)
     .skip(pageSize * (page - 1));
 
