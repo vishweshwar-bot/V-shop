@@ -5,3 +5,6 @@ uploads/
 .DS_Store
 dist/
 .vercel/
+
+.vercel
+.env*

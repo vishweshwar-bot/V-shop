@@ -31,7 +31,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the uploads directory
 const __dirname = path.resolve();
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+const uploadsPath = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, '/uploads');
+app.use('/uploads', express.static(uploadsPath));
 
 // Standard logging middleware
 app.use((req, res, next) => {
