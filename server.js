@@ -66,7 +66,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 let server;
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
   server = app.listen(PORT, () => {
     console.log(

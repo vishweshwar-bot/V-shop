@@ -5,7 +5,6 @@ process.env.STRIPE_SECRET_KEY = 'sk_test_mock_stripe_key_for_testing';
 
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import { app } from './server.js';
 import User from './models/userModel.js';
 import Product from './models/productModel.js';
 import Order from './models/orderModel.js';
@@ -31,6 +30,7 @@ async function setup() {
   console.log('Connected to Mongoose in-memory database');
 
   // Start Express on a dynamic port
+  const { app } = await import('./server.js');
   server = app.listen(0);
   const port = server.address().port;
   baseUrl = `http://localhost:${port}`;
