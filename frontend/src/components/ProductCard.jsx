@@ -6,6 +6,11 @@ import { Eye } from 'lucide-react';
 const ProductCard = ({ product }) => {
   return (
     <div className="glass-panel product-card">
+      {product.countInStock === 0 && (
+        <span className="badge badge-danger" style={{ position: 'absolute', top: '24px', left: '24px', zIndex: 2 }}>
+          Out of Stock
+        </span>
+      )}
       <Link to={`/product/${product._id}`}>
         <img
           src={product.image}
